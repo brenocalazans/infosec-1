@@ -1,5 +1,9 @@
 import org.apache.commons.codec.binary.Hex;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.security.*;
 
 public class DigitalSignature {
@@ -87,7 +91,40 @@ class MySignature {
 	}
 
 	public byte[] sign() {
-		return new byte[0];  //To change body of created methods use File | Settings | File Templates.
+        byte[] digest, signature;
+        Cipher cipher;
+        MessageDigest md5;
+        try {
+            md5 = DigitalSignature.getMD5();
+            md5.update(text);
+            digest = md5.digest();
+            System.out.println("MYSIG - MD5 Hashed text: " + Hex.encodeHexString(digest));
+            cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+            System.out.println("MYSIG - Cipher provider: " + cipher.getProvider().getInfo() );
+            System.out.println("MYSIG - Using private key: " + Hex.encodeHexString(privateKey.getEncoded()));
+            cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+            signature = cipher.doFinal(digest);
+            System.out.println("MYSIG - Hashed text encrypted by private key: " + Hex.encodeHexString(signature));
+            return signature;
+        }
+        catch (NoSuchAlgorithmException e) {
+            System.out.println("No MD5 available. Can't sign!");
+            e.printStackTrace();
+        } catch (NoSuchPaddingException e) {
+            System.out.println("Padding not available. Can't sign!");
+            e.printStackTrace();
+        } catch (InvalidKeyException e) {
+            System.out.println("Invalid key. Can't sign!");
+            e.printStackTrace();
+        } catch (BadPaddingException e) {
+            System.out.println("Bad padding. Can't sign!");
+            e.printStackTrace();
+        } catch (IllegalBlockSizeException e) {
+            System.out.println("Illegal block size. Can't sign!");
+            e.printStackTrace();
+        }
+
+        return new byte[0];
 	}
 
 	public void initVerify(PublicKey aPublic) {
