@@ -45,11 +45,10 @@ public class DigitalSignature {
 	    // define signature object to use MD5 and RSA
 	    // and sign the plain text with the private key,
 	    // the used provider is also printed
-	    Signature sig = Signature.getInstance("MD5WithRSA");
+	    MySignature sig = MySignature.getInstance("MD5WithRSA");
 	    sig.initSign(key.getPrivate());
 	    sig.update(plainText);
 	    byte[] signature = sig.sign();
-	    System.out.println( sig.getProvider().getInfo() );
 	    System.out.println( "\nSignature:" );
 
 	    // print the signature in hex
@@ -67,4 +66,29 @@ public class DigitalSignature {
 	      System.out.println( "Singature failed" );
 	    }
 	}
+}
+
+class MySignature {
+
+    public static MySignature getInstance(String md5WithRSA) {
+        return new MySignature();
+    }
+
+    public void initSign(PrivateKey aPrivate) {
+    }
+
+    public void update(byte[] plainText) {
+    }
+
+    public byte[] sign() {
+        return new byte[0];  //To change body of created methods use File | Settings | File Templates.
+    }
+
+    public void initVerify(PublicKey aPublic) {
+        //To change body of created methods use File | Settings | File Templates.
+    }
+
+    public boolean verify(byte[] signature) throws SignatureException {
+        return false;  //To change body of created methods use File | Settings | File Templates.
+    }
 }
