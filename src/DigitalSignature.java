@@ -15,7 +15,12 @@ public class DigitalSignature {
 	 */
 	public static void main(String[] args) throws Exception {
 		MessageDigest md5;
-		byte[] plainText, digest;
+		byte[] plainText, digest, signature;
+		KeyPairGenerator keyGen;
+		KeyPair key;
+		MySignature mySignature;
+		String verificationSuccess = "Signature verified";
+		String verificationFail = "Signature verification failed";
 
 		// verify args
 		if (args.length != 1) {
@@ -38,18 +43,15 @@ public class DigitalSignature {
 
 		// generate RSA's key pair
 		System.out.println("\nStart generating RSA key");
-		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+		keyGen = KeyPairGenerator.getInstance("RSA");
 		keyGen.initialize(1024);
-		KeyPair key = keyGen.generateKeyPair();
+		key = keyGen.generateKeyPair();
 		System.out.println("Finish generating RSA key");
 
-		// define signature object to use MD5 and RSA
-		// and sign the plain text with the private key,
-		// the used provider is also printed
-		MySignature sig = MySignature.getInstance("MD5WithRSA");
-		sig.initSign(key.getPrivate());
-		sig.update(plainText);
-		byte[] signature = sig.sign();
+		mySignature = MySignature.getInstance();
+		mySignature.initSign(key.getPrivate());
+		mySignature.update(plainText);
+		signature = mySignature.sign();
 		System.out.println("\nSignature:");
 
 		// print the signature in hex
@@ -57,21 +59,21 @@ public class DigitalSignature {
 
 		// verify the signature with the public key
 		System.out.println("\nStart signature verification");
-		sig.initVerify(key.getPublic());
-		sig.update(plainText);
+		mySignature.initVerify(key.getPublic());
+		mySignature.update(plainText);
+
+		// Report verification
 		try {
-			if (sig.verify(signature)) {
-				System.out.println("Signature verified");
-			} else System.out.println("Signature failed");
+			System.out.println( mySignature.verify(signature) ? verificationSuccess : verificationFail );
 		} catch (SignatureException se) {
-			System.out.println("Singature failed");
+			System.out.println(verificationFail);
 		}
 	}
 }
 
 class MySignature {
 
-	public static MySignature getInstance(String md5WithRSA) {
+	public static MySignature getInstance() {
 		return new MySignature();
 	}
 
