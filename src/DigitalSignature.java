@@ -53,8 +53,6 @@ public class DigitalSignature {
 		mySignature.update(plainText);
 		signature = mySignature.sign();
 		System.out.println("\nSignature:");
-
-		// print the signature in hex
 		System.out.println(Hex.encodeHexString(signature));
 
 		// verify the signature with the public key
@@ -73,14 +71,19 @@ public class DigitalSignature {
 
 class MySignature {
 
+    private PrivateKey privateKey;
+    private byte[] text;
+
 	public static MySignature getInstance() {
 		return new MySignature();
 	}
 
 	public void initSign(PrivateKey aPrivate) {
+        privateKey = aPrivate;
 	}
 
 	public void update(byte[] plainText) {
+        text = plainText;
 	}
 
 	public byte[] sign() {
