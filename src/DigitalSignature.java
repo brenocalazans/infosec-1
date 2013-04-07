@@ -1,3 +1,5 @@
+import org.apache.commons.codec.binary.Hex;
+
 import java.security.*;
 
 public class DigitalSignature {
@@ -14,7 +16,6 @@ public class DigitalSignature {
 	    }
 	    // get plain text
 	    byte[] plainText = args[0].getBytes("UTF8");
-	    
 	    
 	    // Digest code sample
 	    
@@ -61,15 +62,8 @@ public class DigitalSignature {
 	    System.out.println( sig.getProvider().getInfo() );
 	    System.out.println( "\nSignature:" );
 
-	    // convert the signature to hex
-	    StringBuffer buf1 = new StringBuffer();
-	    for(int i = 0; i < signature.length; i++) {
-	       String hex = Integer.toHexString(0x0100 + (signature[i] & 0x00FF)).substring(1);
-	       buf1.append((hex.length() < 2 ? "0" : "") + hex);
-	    }
-
 	    // print the signature in hex
-	    System.out.println( buf1.toString() );
+	    System.out.println( Hex.encodeHexString(signature) );
 
 	    // verify the signature with the public key
 	    System.out.println( "\nStart signature verification" );
