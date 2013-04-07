@@ -15,6 +15,35 @@ public class DigitalSignature {
 	    // get plain text
 	    byte[] plainText = args[0].getBytes("UTF8");
 	    
+	    
+	    // Digest code sample
+	    
+	    // get a message digest object using the MD5 algorithm
+	    MessageDigest messageDigest = MessageDigest.getInstance("MD5");
+
+	    // print out the provider used
+	    System.out.println( "\n" + messageDigest.getProvider().getInfo() );
+	    
+	    // calculate the digest and print it out
+	    messageDigest.update(plainText);
+	    byte [] digest = messageDigest.digest();
+	    System.out.println( "\nDigest length: " + digest.length * 8 + "bits" );
+
+	    // convert the digest to hex
+	    StringBuffer buf = new StringBuffer();
+	    for(int i = 0; i < digest.length; i++) {
+	       String hex = Integer.toHexString(0x0100 + (digest[i] & 0x00FF)).substring(1);
+	       buf.append((hex.length() < 2 ? "0" : "") + hex);
+	    }
+
+	    // print the digest in hex
+	    System.out.println( "\nDigest(hex): " );
+	    System.out.println( buf.toString() );	   	   
+	    
+	    // end digest sample
+	    
+	    
+	    
 	    // generate RSA's key pair
 	    System.out.println( "\nStart generating RSA key" );
 	    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
@@ -33,14 +62,14 @@ public class DigitalSignature {
 	    System.out.println( "\nSignature:" );
 
 	    // convert the signature to hex
-	    StringBuffer buf = new StringBuffer();
+	    StringBuffer buf1 = new StringBuffer();
 	    for(int i = 0; i < signature.length; i++) {
 	       String hex = Integer.toHexString(0x0100 + (signature[i] & 0x00FF)).substring(1);
-	       buf.append((hex.length() < 2 ? "0" : "") + hex);
+	       buf1.append((hex.length() < 2 ? "0" : "") + hex);
 	    }
 
 	    // print the signature in hex
-	    System.out.println( buf.toString() );
+	    System.out.println( buf1.toString() );
 
 	    // verify the signature with the public key
 	    System.out.println( "\nStart signature verification" );
