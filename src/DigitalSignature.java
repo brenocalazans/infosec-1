@@ -5,6 +5,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.security.*;
+import java.util.Arrays;
 
 public class DigitalSignature {
 
@@ -51,7 +52,8 @@ public class DigitalSignature {
 		keyGen.initialize(1024);
 		key = keyGen.generateKeyPair();
 		System.out.println("Finish generating RSA key");
-
+		
+		// sign
 		mySignature = MySignature.getInstance();
 		mySignature.initSign(key.getPrivate());
 		mySignature.update(plainText);
@@ -64,7 +66,7 @@ public class DigitalSignature {
 		mySignature.initVerify(key.getPublic());
 		mySignature.update(plainText);
 
-		// Report verification
+		// report signature verification
 		try {
 			System.out.println(mySignature.verify(signature) ? verificationSuccess : verificationFail);
 		} catch (SignatureException se) {
@@ -73,6 +75,7 @@ public class DigitalSignature {
 	}
 }
 
+// custom implementation of Signature class
 class MySignature {
 
 	private PrivateKey privateKey;
@@ -95,17 +98,23 @@ class MySignature {
 		byte[] digest, signature;
 		Cipher cipher;
 		MessageDigest md5;
-		try {
-			cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+		try {			
+			// get digest
 			md5 = DigitalSignature.getMD5();
 			md5.update(text);
 			digest = md5.digest();
 			System.out.println("MYSIG - MD5 Hashed text: " + Hex.encodeHexString(digest));
+			
+			// initializing cipher
+			cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 			System.out.println("MYSIG - Cipher provider: " + cipher.getProvider().getInfo());
-			System.out.println("MYSIG - Using private key: " + Hex.encodeHexString(privateKey.getEncoded()));
+			// encrypting using private key
 			cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+			System.out.println("MYSIG - Using private key: " + Hex.encodeHexString(privateKey.getEncoded()));
+			// finally sign
 			signature = cipher.doFinal(digest);
 			System.out.println("MYSIG - Hashed text encrypted by private key: " + Hex.encodeHexString(signature));
+			
 			return signature;
 		} catch (NoSuchAlgorithmException e) {
 			System.out.println("No MD5 available. Can't sign!");
@@ -136,18 +145,25 @@ class MySignature {
 		Cipher cipher;
 		MessageDigest md5;
 		try {
-			cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+			// get digest
 			md5 = DigitalSignature.getMD5();
 			md5.update(text);
 			digest = md5.digest();
 			System.out.println("MYSIG - MD5 Hashed text: " + Hex.encodeHexString(digest));
+			
+			// initializing cipher
+			cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 			System.out.println("MYSIG - Cipher provider: " + cipher.getProvider().getInfo());
-			System.out.println("MYSIG - Using public key: " + Hex.encodeHexString(publicKey.getEncoded()));
-			System.out.println("MYSIG - Using signature: " + Hex.encodeHexString(signature));
+			// decrypting using public key
 			cipher.init(Cipher.DECRYPT_MODE, publicKey);
+			System.out.println("MYSIG - Using public key: " + Hex.encodeHexString(publicKey.getEncoded()));
+			// decrypt using signature
 			decryptedDigest = cipher.doFinal(signature);
+			System.out.println("MYSIG - Using signature: " + Hex.encodeHexString(signature));
 			System.out.println("MYSIG - Decrypted MD5 Hash: " + Hex.encodeHexString(decryptedDigest));
-			return Hex.encodeHexString(digest).equals(Hex.encodeHexString(decryptedDigest));
+			
+			// return boolean verification
+			return Arrays.equals(digest, decryptedDigest);
 		} catch (NoSuchAlgorithmException e) {
 			System.out.println("No MD5 available. Can't sign!");
 			e.printStackTrace();
